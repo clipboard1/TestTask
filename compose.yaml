@@ -1,0 +1,7 @@
+﻿services:
+  testtask.api:
+    image: testtask.api
+    build:
+      context: .
+      dockerfile: TestTask.Api/Dockerfile
+
