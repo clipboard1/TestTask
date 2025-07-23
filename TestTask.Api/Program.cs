@@ -1,7 +1,24 @@
+using Microsoft.EntityFrameworkCore;
+using TestTask.Application.Abstractions;
+using TestTask.Application.Services;
+using TestTask.Infrastructure;
+using TestTask.Infrastructure.Abstractions;
+using TestTask.Infrastructure.Repositories;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
+
+string? connectionString = builder.Configuration.GetConnectionString(nameof(TestTaskDbContext));
+
+builder.Services.AddDbContext<TestTaskDbContext>(options =>
+{
+    options.UseNpgsql(connectionString);
+});
+
+builder.Services.AddScoped<ILogRepository, LogRepository>();
+builder.Services.AddScoped<ILogService, LogService>();
 
 var app = builder.Build();
 
