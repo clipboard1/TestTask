@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using Microsoft.EntityFrameworkCore;
+using TestTask.Infrastructure.Entities.LogEntity;
 
 namespace TestTask.Infrastructure.Models;
 
@@ -20,7 +21,7 @@ public partial class Log
     public DateTime Datetime { get; set; }
 
     [Column("recordtype")]
-    public int Recordtype { get; set; }
+    public LogRecordType Recordtype { get; set; }
 
     [Column("comment")]
     public string? Comment { get; set; }
@@ -32,10 +33,10 @@ public partial class Log
     public Guid? Logguidlinked { get; set; }
 
     [Column("entity")]
-    public int? Entity { get; set; }
+    public LogEntityType? Entity { get; set; }
 
     [Column("eventinfo")]
-    public int? Eventinfo { get; set; }
+    public Information? Eventinfo { get; set; }
 
     [Column("fieldname")]
     public string? Fieldname { get; set; }
