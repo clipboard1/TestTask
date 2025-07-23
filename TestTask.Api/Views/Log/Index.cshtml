@@ -1,0 +1,26 @@
+﻿@{
+    ViewData["Title"] = "Logs Page";
+}
+<link rel="styleSheet" href="https://cdnjs.cloudflare.com/ajax/libs/angular-ui-grid/4.8.1/ui-grid.min.css"/>
+<div ng-app="myApp" ng-controller="LogsController">
+    <div id="logsGrid" ui-grid="{ data:items }" class="grid"></div>
+</div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/angular-ui-grid/4.8.1/ui-grid.min.js"></script>
+<script>
+    let myApp = angular.module('myApp', ['ui.grid']);
+    myApp.controller('LogsController', function ($http, $scope){
+        $scope.items = []
+        $http.get('Log/Get/').then(function (response){
+            $scope.items = response.data.logs;
+            }, function (error) {
+                console.error('Ошиfбка:', error)
+            })
+        })
+
+</script>
+<style>
+    .ui-grid-viewport {
+        height: 100% !important;
+        width: 100% !important;
+    }
+</style>
