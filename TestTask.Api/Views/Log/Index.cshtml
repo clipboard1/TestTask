@@ -2,25 +2,77 @@
     ViewData["Title"] = "Logs Page";
 }
 <link rel="styleSheet" href="https://cdnjs.cloudflare.com/ajax/libs/angular-ui-grid/4.8.1/ui-grid.min.css"/>
-<div ng-app="myApp" ng-controller="LogsController">
-    <div id="logsGrid" ui-grid="{ data:items }" class="grid"></div>
+<div ng-app="myApp" ng-controller="LogsController" class="p-5">
+    <div class="form-check form-switch">
+        <input class="form-check-input"
+               ng-model="isFiltersEnabled"
+               ng-change="toggleFiltering()"
+               type="checkbox"
+               id="flexSwitchCheckDefault">
+        <label class="form-check-label"
+               for="flexSwitchCheckDefault">
+            Toggle filters
+        </label>
+    </div>
+    <div id="logsGrid" ui-grid="gridOptions" ui-grid-infinite-scroll class="grid"></div>
 </div>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/angular-ui-grid/4.8.1/ui-grid.min.js"></script>
 <script>
-    let myApp = angular.module('myApp', ['ui.grid']);
-    myApp.controller('LogsController', function ($http, $scope){
-        $scope.items = []
-        $http.get('Log/Get/').then(function (response){
-            $scope.items = response.data.logs;
-            }, function (error) {
-                console.error('Ошиfбка:', error)
-            })
-        })
+    let myApp = angular.module('myApp', ['ui.grid', 'ui.grid.infiniteScroll']);
+    myApp.controller('LogsController', function ($http, $scope) {
+        $scope.page = 1;
+        $scope.pageSize = 20;
+        $scope.items = [];
+        $scope.isFiltersEnabled = true;
+        let isLoading = false;
 
+        $scope.gridOptions = {
+            data: 'items',
+            enableFiltering: $scope.isFiltersEnabled,
+            infiniteScrollRowsFromEnd: 20,
+            infiniteScrollDown: true,
+            onRegisterApi: function (gridApi) {
+                gridApi.infiniteScroll.on.needLoadMoreData($scope, getDataDown);
+                $scope.gridApi = gridApi;
+            }
+        };
+
+        const getDataDown = () => {
+            if (isLoading) return;
+
+            isLoading = true;
+            $http.get(`Log/Get/?page=${$scope.page}&pageSize=${$scope.pageSize}`)
+                .then(function (response) {
+                    let newLogs = response.data.logs;
+                    $scope.items = $scope.items.concat(newLogs);
+                    $scope.page++;
+                    isLoading = false;
+                    if (newLogs.length < $scope.pageSize)
+                        $scope.gridApi.infiniteScroll.dataLoaded(true);
+                    else
+                        $scope.gridApi.infiniteScroll.dataLoaded(false);
+                }, function (error) {
+                    console.error('Ошибка:', error)
+                    isLoading = false;
+                    $scope.gridApi.infiniteScroll.dataLoaded(true);
+                })
+        }
+
+        $scope.toggleFiltering = function () {
+            $scope.gridOptions.enableFiltering = $scope.isFiltersEnabled;
+
+            $scope.gridOptions.columnDefs.forEach(col => {
+                col.enableFiltering = $scope.isFiltersEnabled;
+            });
+
+            $scope.gridApi.core.notifyDataChange('column');
+        };
+
+        getDataDown();
+    })
 </script>
 <style>
-    .ui-grid-viewport {
-        height: 100% !important;
-        width: 100% !important;
+    .grid {
+        height: 65rem;
     }
 </style>
