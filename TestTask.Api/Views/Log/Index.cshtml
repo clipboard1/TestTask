@@ -14,11 +14,24 @@
             Toggle filters
         </label>
     </div>
-    <div id="logsGrid" ui-grid="gridOptions" ui-grid-infinite-scroll class="grid"></div>
+    <div class="grid"
+         id="logsGrid"
+         ui-grid="gridOptions"
+         ui-grid-infinite-scroll
+         ui-grid-resize-columns
+         ui-grid-move-columns
+         >
+    </div>
 </div>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/angular-ui-grid/4.8.1/ui-grid.min.js"></script>
 <script>
-    let myApp = angular.module('myApp', ['ui.grid', 'ui.grid.infiniteScroll']);
+    let myApp = angular.module('myApp',
+        [
+            'ui.grid',
+            'ui.grid.infiniteScroll',
+            'ui.grid.resizeColumns',
+            'ui.grid.moveColumns'
+        ]);
     myApp.controller('LogsController', function ($http, $scope) {
         $scope.page = 1;
         $scope.pageSize = 20;
@@ -29,6 +42,7 @@
         $scope.gridOptions = {
             data: 'items',
             enableFiltering: $scope.isFiltersEnabled,
+            enableColumnResizing: true,
             infiniteScrollRowsFromEnd: 20,
             infiniteScrollDown: true,
             onRegisterApi: function (gridApi) {
