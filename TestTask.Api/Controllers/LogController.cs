@@ -36,25 +36,7 @@ public class LogController: Controller
             return NotFound();
 
         var logs = result.logs
-            .Select(l => new LogResponse(
-                l.Id,
-                l.User,
-                l.Datetime,
-                Enum.GetName(l.Recordtype)
-                    ?? "Bad data",
-                l.Comment,
-                l.Logguid,
-                l.Logguidlinked,
-                l.Entity.HasValue
-                    ? Enum.GetName(l.Entity.Value)
-                    : "No info",
-                l.Eventinfo.HasValue
-                    ? Enum.GetName(l.Eventinfo.Value)
-                    : "No info",
-                l.Fieldname,
-                l.Oldvalue,
-                l.Newvalue
-            ));
+            .Select(LogResponse.FromEntity);
 
         return Ok(new { logs, result.TotalCount});
     }
