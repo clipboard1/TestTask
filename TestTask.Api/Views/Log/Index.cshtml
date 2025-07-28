@@ -11,7 +11,7 @@
 <div
     ng-app="myApp"
     ng-controller="LogsController"
-    class="p-5"
+    class="p-5 d-flex flex-column gap-3"
 >
     <div class="form-check form-switch">
         <input
@@ -28,28 +28,65 @@
             Toggle filters
         </label>
     </div>
-    <div class="filter-container w-25">
+    <div class="filter-container d-flex justify-content-start gap-3">
         <div class="date-filter-container d-flex gap-3">
-            <div class="form-group w-25" style="min-width: 100px">
+            <div class="d-flex flex-column">
                 <label for="dateFrom">Date from:</label>
-                <input
-                    type="text"
-                    id="dateFrom"
-                    class="form-control date-filter"
-                    placeholder="dd.mm.yyyy"
-                    ng-model="dateFrom"
-                    ng-change="refreshLogs()"/>
+                <div class="form-group d-flex gap-1">
+                    <input
+                        type="text"
+                        id="dateFrom"
+                        class="form-control date-filter"
+                        style="width: 100px"
+                        placeholder="dd.mm.yyyy"
+                        ng-model="dateFrom"
+                        ng-change="refreshLogs()" />
+                    <button
+                        type="button"
+                        class="btn btn-danger btn-sm"
+                        ng-click="clearFilters('dateFrom')">
+                        X
+                    </button>
+                </div>
             </div>
-            <div class="form-group w-25" style="min-width: 100px">
+            <div class="d-flex flex-column">
                 <label for="dateTo">Date to:</label>
-                <input
-                    type="text"
-                    id="dateTo"
-                    class="form-control date-filter"
-                    placeholder="dd.mm.yyyy"
-                    ng-model="dateTo"
-                    ng-change="refreshLogs()"/>
+                <div class="d-flex gap-1">
+                    <input
+                        type="text"
+                        id="dateTo"
+                        class="form-control date-filter"
+                        style="width: 100px"
+                        placeholder="dd.mm.yyyy"
+                        ng-model="dateTo"
+                        ng-change="refreshLogs()"/>
+                    <button
+                        type="button"
+                        class="btn btn-danger btn-sm"
+                        ng-click="clearFilters('dateTo')">
+                        X
+                    </button>
+                </div>
             </div>
+        </div>
+        <div class="entity-filter-container d-flex flex-column">
+            <label for="entityType">Choose entity type</label>
+            <div class="d-flex gap-1">
+                <select class="form-select"
+                        id="entityType"
+                        ng-model="entityType"
+                        ng-change="refreshLogs()"
+                        ng-options="x for x in possibleEntityTypes">
+                    <option value="" disabled>Choose type</option>
+                </select>
+                <button
+                    type="button"
+                    class="btn btn-danger btn-sm"
+                    ng-click="clearFilters('entityType')">
+                    X
+                </button>
+            </div>
+
         </div>
     </div>
     <div
@@ -80,6 +117,8 @@
         $scope.isFiltersEnabled = true;
         $scope.dateFrom = '';
         $scope.dateTo = '';
+        $scope.entityType = null;
+        $scope.possibleEntityTypes = [];
         let isLoading = false;
 
         $scope.gridOptions = {
@@ -94,9 +133,12 @@
             }
         };
 
-        $scope.getLogs = (page, pageSize, dateFrom, dateTo) => {
+        $scope.getLogs = (page, pageSize, dateFrom, dateTo, entityType) => {
             return $http.get('Log/Get', {
-                params: {page, pageSize, dateFrom, dateTo}
+                params: {page, pageSize,
+                    dateFrom, dateTo,
+                    entityType
+                }
             })
                 .then(response => response.data.logs);
         }
@@ -109,7 +151,8 @@
 
             $scope.getLogs(
                 pageToFetch, $scope.pageSize,
-                $scope.dateFrom, $scope.dateTo
+                $scope.dateFrom, $scope.dateTo,
+                $scope.entityType
             )
                 .then(logs => {
                     if (append) {
@@ -124,6 +167,8 @@
                         $scope.gridApi.infiniteScroll.dataLoaded(true);
                     else
                         $scope.gridApi.infiniteScroll.dataLoaded(false);
+
+                    updateFilters();
                 })
                 .catch(error => {
                     console.error('Ошибка:', error)
@@ -147,6 +192,17 @@
             $scope.gridApi.core.notifyDataChange('column');
         };
 
+        const updateFilters = () => {
+            const newEntityItems = Array.from(new Set($scope.items.map(item => item.entity)));
+            if (newEntityItems.length > $scope.possibleEntityTypes)
+                $scope.possibleEntityTypes = newEntityItems;
+        }
+
+        $scope.clearFilters = (name) => {
+            $scope[name] = '';
+            $scope.refreshLogs();
+        }
+
         $(document).ready(() => {
             $('.date-filter').datepicker({
                 format: 'yyyy-mm-dd',
@@ -159,8 +215,3 @@
         });
     })
 </script>
-<style>
-    .grid {
-        height: 60rem;
-    }
-</style>
