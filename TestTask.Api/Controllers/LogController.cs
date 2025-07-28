@@ -12,6 +12,7 @@ namespace TestTask.Api.Controllers;
 public class LogController: Controller
 {
     private readonly ILogService _service;
+    private const int MaxInputLength = 255;
 
     public LogController(ILogService service)
     {
@@ -29,6 +30,10 @@ public class LogController: Controller
         string? entityType = null, string? user = null)
 
     {
+        if (entityType?.Length > MaxInputLength ||
+            user?.Length > MaxInputLength)
+            return BadRequest("Too many characters");
+
         var result = await _service.GetLogs(
             cancellationToken,
             page, pageSize,
