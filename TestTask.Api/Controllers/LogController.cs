@@ -26,13 +26,15 @@ public class LogController: Controller
         CancellationToken cancellationToken, int page = 1,
         int pageSize = 20, DateTime? dateFrom = null,
         DateTime? dateTo = null,
-        string? entityType = null)
+        string? entityType = null,
+        string? user = null)
+
     {
         var result = await _service.GetLogs(
             cancellationToken,
             page, pageSize,
             dateFrom, dateTo,
-            entityType);
+            entityType, user);
 
         if (!result.logs.Any())
             return NotFound();
@@ -40,6 +42,6 @@ public class LogController: Controller
         var logs = result.logs
             .Select(LogResponse.FromEntity);
 
-        return Ok(new { logs, result.TotalCount});
+        return Ok(new { logs, result.TotalCount });
     }
 }

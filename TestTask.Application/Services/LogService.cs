@@ -16,9 +16,11 @@ public class LogService : ILogService
     }
 
     public async Task<(List<Log> logs, int TotalCount)> GetLogs(
-        CancellationToken cancellationToken, int page = 1, 
+        CancellationToken cancellationToken, int page = 1,
         int pageSize = 10, DateTime? dateFrom = null,
-        DateTime? dateTo = null, string? entityType = null)
+        DateTime? dateTo = null, string? entityType = null,
+        string? user = null)
+
     {
         var entityFilter = Enum.TryParse<LogEntityType>(entityType, true, out var parsedEntity)
             ? parsedEntity
@@ -29,7 +31,7 @@ public class LogService : ILogService
             cancellationToken,
             page, pageSize,
             dateFrom, dateTo,
-            entityFilter);
+            entityFilter, user);
         return result;
     }
 }

@@ -28,7 +28,7 @@
             Toggle filters
         </label>
     </div>
-    <div class="filter-container d-flex justify-content-start gap-3">
+    <div class="filters-container d-flex justify-content-start gap-4">
         <div class="date-filter-container d-flex gap-3">
             <div class="d-flex flex-column">
                 <label for="dateFrom">Date from:</label>
@@ -86,7 +86,24 @@
                     X
                 </button>
             </div>
-
+        </div>
+        <div class="user-filter-container d-flex flex-column">
+            <label
+                for="user">Input user name </label>
+            <div class="d-flex gap-1">
+                <input
+                    type="text"
+                    class="form-control"
+                    id="user"
+                    ng-model="user"
+                    ng-change="refreshLogs()">
+                <button
+                    type="button"
+                    class="btn btn-danger btn-sm"
+                    ng-click="clearFilters('user')">
+                    X
+                </button>
+            </div>
         </div>
     </div>
     <div
@@ -119,6 +136,7 @@
         $scope.dateTo = '';
         $scope.entityType = null;
         $scope.possibleEntityTypes = [];
+        $scope.user = '';
         let isLoading = false;
 
         $scope.gridOptions = {
@@ -133,11 +151,12 @@
             }
         };
 
-        $scope.getLogs = (page, pageSize, dateFrom, dateTo, entityType) => {
+        $scope.getLogs = (page, pageSize, dateFrom, dateTo, entityType, user) => {
             return $http.get('Log/Get', {
-                params: {page, pageSize,
+                params: {
+                    page, pageSize,
                     dateFrom, dateTo,
-                    entityType
+                    entityType, user
                 }
             })
                 .then(response => response.data.logs);
@@ -152,7 +171,7 @@
             $scope.getLogs(
                 pageToFetch, $scope.pageSize,
                 $scope.dateFrom, $scope.dateTo,
-                $scope.entityType
+                $scope.entityType, $scope.user
             )
                 .then(logs => {
                     if (append) {

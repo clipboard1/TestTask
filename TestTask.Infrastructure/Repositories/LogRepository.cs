@@ -18,7 +18,8 @@ public class LogRepository : ILogRepository
         int pageSize = 10,
         DateTime? dateFrom = null,
         DateTime? dateTo = null,
-        LogEntityType? entityType = null)
+        LogEntityType? entityType = null,
+        string? user = null)
     {
         if (page < 1)
             return ([], 0);
@@ -35,6 +36,9 @@ public class LogRepository : ILogRepository
 
         if (entityType.HasValue)
             query = query.Where(l => l.Entity.Equals(entityType));
+
+        if (!string.IsNullOrEmpty(user))
+            query = query.Where(l => l.User.Contains(user));
 
         var totalCount = await query.CountAsync(cancellationToken);
 

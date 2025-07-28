@@ -10,5 +10,6 @@ public interface ILogRepository
         int pageSize = 10,
         DateTime? dateFrom = null,
         DateTime? dateTo = null,
-        LogEntityType? entityType = null);
+        LogEntityType? entityType = null,
+        string? user = null);
 }
