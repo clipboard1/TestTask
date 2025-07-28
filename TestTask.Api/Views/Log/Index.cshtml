@@ -7,105 +7,13 @@
 />
 <link
     href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/css/bootstrap-datepicker.min.css"
-    rel="stylesheet"/>
+    rel="stylesheet"
+/>
 <div
     ng-app="myApp"
     ng-controller="LogsController"
     class="p-5 d-flex flex-column gap-3"
 >
-    <div class="form-check form-switch">
-        <input
-            class="form-check-input"
-            ng-model="isFiltersEnabled"
-            ng-change="toggleFiltering()"
-            type="checkbox"
-            id="flexSwitchCheckDefault"
-        >
-        <label
-            class="form-check-label"
-            for="flexSwitchCheckDefault"
-        >
-            Toggle filters
-        </label>
-    </div>
-    <div class="filters-container d-flex justify-content-start gap-4">
-        <div class="date-filter-container d-flex gap-3">
-            <div class="d-flex flex-column">
-                <label for="dateFrom">Date from:</label>
-                <div class="form-group d-flex gap-1">
-                    <input
-                        type="text"
-                        id="dateFrom"
-                        class="form-control date-filter"
-                        style="width: 100px"
-                        placeholder="dd.mm.yyyy"
-                        ng-model="dateFrom"
-                        ng-change="refreshLogs()" />
-                    <button
-                        type="button"
-                        class="btn btn-danger btn-sm"
-                        ng-click="clearFilter('dateFrom')">
-                        X
-                    </button>
-                </div>
-            </div>
-            <div class="d-flex flex-column">
-                <label for="dateTo">Date to:</label>
-                <div class="d-flex gap-1">
-                    <input
-                        type="text"
-                        id="dateTo"
-                        class="form-control date-filter"
-                        style="width: 100px"
-                        placeholder="dd.mm.yyyy"
-                        ng-model="dateTo"
-                        ng-change="refreshLogs()"/>
-                    <button
-                        type="button"
-                        class="btn btn-danger btn-sm"
-                        ng-click="clearFilter('dateTo')">
-                        X
-                    </button>
-                </div>
-            </div>
-        </div>
-        <div class="entity-filter-container d-flex flex-column">
-            <label for="entityType">Choose entity type</label>
-            <div class="d-flex gap-1">
-                <select class="form-select"
-                        id="entityType"
-                        ng-model="entityType"
-                        ng-change="refreshLogs()"
-                        ng-options="x for x in possibleEntityTypes">
-                    <option value="" disabled>Choose type</option>
-                </select>
-                <button
-                    type="button"
-                    class="btn btn-danger btn-sm"
-                    ng-click="clearFilter('entityType')">
-                    X
-                </button>
-            </div>
-        </div>
-        <div class="user-filter-container d-flex flex-column">
-            <label
-                for="user">Input user name </label>
-            <div class="d-flex gap-1">
-                <input
-                    type="text"
-                    class="form-control"
-                    id="user"
-                    ng-model="user"
-                    ng-change="refreshLogs()">
-                <button
-                    type="button"
-                    class="btn btn-danger btn-sm"
-                    ng-click="clearFilter('user')">
-                    X
-                </button>
-            </div>
-        </div>
-    </div>
     <div
         class="grid"
         id="logsGrid"
@@ -124,10 +32,10 @@
             'ui.grid',
             'ui.grid.infiniteScroll',
             'ui.grid.resizeColumns',
-            'ui.grid.moveColumns'
+            'ui.grid.moveColumns',
         ]);
 
-    myApp.controller('LogsController', function ($http, $scope) {
+    myApp.controller('LogsController', function ($http, $scope, uiGridConstants) {
         $scope.page = 1;
         $scope.pageSize = 20;
         $scope.items = [];
@@ -142,12 +50,90 @@
         $scope.gridOptions = {
             data: 'items',
             enableFiltering: $scope.isFiltersEnabled,
+            useExternalFiltering: true,
             enableColumnResizing: true,
             infiniteScrollRowsFromEnd: 20,
             infiniteScrollDown: true,
+            columnDefs: [
+                {
+                    field: 'id',
+                    displayName: 'Id',
+                    enableFiltering: false
+                },
+                {
+                    field: 'user',
+                    displayName: 'User',
+                },
+                {
+                    field: 'dateTime',
+                    displayName: 'DateTime',
+                    type: 'date',
+                    cellFilter: 'date:"yyyy-MM-dd"',
+                },
+                {
+                    field: 'recordType',
+                    displayName: 'RecordType',
+                    enableFiltering: false
+                },
+                {
+                    field: 'comment',
+                    displayName: 'Comment',
+                    enableFiltering: false
+                },
+                {
+                    field: 'logGuid',
+                    displayName: 'LogGuid',
+                    enableFiltering: false
+                },
+                {
+                    field: 'logGuidLinked',
+                    displayName: 'LogGuidLinked',
+                    enableFiltering: false
+                },
+                {
+                    field: 'entity',
+                    displayName: 'Entity Type',
+                    filter: {
+                        type: uiGridConstants.filter.SELECT,
+                        selectOptions: [],
+                    },
+                },
+                {
+                    field: 'eventInfo',
+                    displayName: 'EventInfo',
+                    enableFiltering: false
+                },
+                {
+                    field: 'fieldName',
+                    displayName: 'FieldName',
+                    enableFiltering: false
+                },
+                {
+                    field: 'oldValue',
+                    displayName: 'OldValue',
+                    enableFiltering: false
+                },
+                {
+                    field: 'newValue',
+                    displayName: 'NewValue',
+                    enableFiltering: false
+                },
+            ],
             onRegisterApi: function (gridApi) {
                 gridApi.infiniteScroll.on.needLoadMoreData($scope, $scope.loadMoreLogs);
                 $scope.gridApi = gridApi;
+
+                gridApi.core.on.filterChanged($scope, function () {
+                    const grid = this.grid;
+
+                    const userFilter = grid.columns.find(c => c.field === 'user')?.filters[0]?.term;
+                    const entityFilter = grid.columns.find(c => c.field === 'entity')?.filters[0]?.term;
+
+                    $scope.user = userFilter || '';
+                    $scope.entityType = entityFilter || '';
+
+                    $scope.refreshLogs();
+                });
             }
         };
 
@@ -215,11 +201,13 @@
             const newEntityItems = Array.from(new Set($scope.items.map(item => item.entity)));
             if (newEntityItems.length > $scope.possibleEntityTypes)
                 $scope.possibleEntityTypes = newEntityItems;
-        }
 
-        $scope.clearFilter = (name) => {
-            $scope[name] = '';
-            $scope.refreshLogs();
+            const entityColumn = $scope.gridApi.grid.columns.find(c => c.field === 'entity');
+            if (entityColumn) {
+                console.log(entityColumn)
+                entityColumn.enableFiltering = $scope.isFiltersEnabled;
+                entityColumn.filter.selectOptions = $scope.possibleEntityTypes.map(v => ({value: v, label: v}))
+            }
         }
 
         $(document).ready(() => {
