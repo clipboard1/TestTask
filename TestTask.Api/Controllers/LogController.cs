@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using System.ComponentModel.DataAnnotations;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using TestTask.Api.Contracts;
 using TestTask.Application.Abstractions;
@@ -24,17 +25,15 @@ public class LogController: Controller
 
     public async Task<IActionResult> Get(
         CancellationToken cancellationToken, int page = 1,
-        int pageSize = 20, DateTime? dateFrom = null,
-        DateTime? dateTo = null,
-        string? entityType = null,
-        string? user = null)
+        int pageSize = 20, DateTime? date = null,
+        string? entityType = null, string? user = null)
 
     {
         var result = await _service.GetLogs(
             cancellationToken,
             page, pageSize,
-            dateFrom, dateTo,
-            entityType, user);
+            date,entityType,
+            user);
 
         if (!result.logs.Any())
             return NotFound();

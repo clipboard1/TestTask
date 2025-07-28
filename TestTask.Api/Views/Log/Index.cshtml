@@ -123,21 +123,23 @@
 
                     const userFilter = grid.columns.find(c => c.field === 'user')?.filters[0]?.term;
                     const entityFilter = grid.columns.find(c => c.field === 'entity')?.filters[0]?.term;
+                    const dateFilter = grid.columns.find(c => c.field === 'dateTime')?.filters[0]?.term;
 
                     $scope.user = userFilter || '';
                     $scope.entityType = entityFilter || '';
+                    $scope.date = dateFilter || '';
 
                     $scope.refreshLogs();
                 });
             }
         };
 
-        $scope.getLogs = (page, pageSize, dateFrom, dateTo, entityType, user) => {
+        $scope.getLogs = (page, pageSize, date, entityType, user) => {
             return $http.get('Log/Get', {
                 params: {
                     page, pageSize,
-                    dateFrom, dateTo,
-                    entityType, user
+                    date, entityType,
+                    user
                 }
             })
                 .then(response => response.data.logs);
@@ -151,8 +153,8 @@
 
             $scope.getLogs(
                 pageToFetch, $scope.pageSize,
-                $scope.dateFrom, $scope.dateTo,
-                $scope.entityType, $scope.user
+                $scope.date, $scope.entityType,
+                $scope.user
             )
                 .then(logs => {
                     if (append) {

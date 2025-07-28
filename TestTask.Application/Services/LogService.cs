@@ -17,9 +17,8 @@ public class LogService : ILogService
 
     public async Task<(List<Log> logs, int TotalCount)> GetLogs(
         CancellationToken cancellationToken, int page = 1,
-        int pageSize = 10, DateTime? dateFrom = null,
-        DateTime? dateTo = null, string? entityType = null,
-        string? user = null)
+        int pageSize = 10, DateTime? date = null,
+        string? entityType = null, string? user = null)
 
     {
         var entityFilter = Enum.TryParse<LogEntityType>(entityType, true, out var parsedEntity)
@@ -30,8 +29,8 @@ public class LogService : ILogService
         var result = await _repository.GetLogs(
             cancellationToken,
             page, pageSize,
-            dateFrom, dateTo,
-            entityFilter, user);
+            date, entityFilter,
+            user);
         return result;
     }
 }

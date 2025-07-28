@@ -8,8 +8,7 @@ public interface ILogService
     public Task<(List<Log> logs, int TotalCount)> GetLogs(CancellationToken cancellationToken,
         int page = 1,
         int pageSize = 10,
-        DateTime? dateFrom = null,
-        DateTime? dateTo = null,
+        DateTime? date = null,
         string? entityType = null,
         string? user = null);
 }
