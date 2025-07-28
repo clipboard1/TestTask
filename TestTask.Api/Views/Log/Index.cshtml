@@ -5,10 +5,6 @@
     rel="styleSheet"
     href="https://cdnjs.cloudflare.com/ajax/libs/angular-ui-grid/4.8.1/ui-grid.min.css"
 />
-<link
-    href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/css/bootstrap-datepicker.min.css"
-    rel="stylesheet"
-/>
 <div
     ng-app="myApp"
     ng-controller="LogsController"
@@ -25,7 +21,6 @@
     </div>
 </div>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/angular-ui-grid/4.8.1/ui-grid.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/js/bootstrap-datepicker.min.js"></script>
 <script>
     let myApp = angular.module('myApp',
         [
@@ -204,21 +199,11 @@
 
             const entityColumn = $scope.gridApi.grid.columns.find(c => c.field === 'entity');
             if (entityColumn) {
-                console.log(entityColumn)
                 entityColumn.enableFiltering = $scope.isFiltersEnabled;
                 entityColumn.filter.selectOptions = $scope.possibleEntityTypes.map(v => ({value: v, label: v}))
             }
         }
 
-        $(document).ready(() => {
-            $('.date-filter').datepicker({
-                format: 'yyyy-mm-dd',
-                autoclose: true,
-                todayHighlight: true,
-                language: 'ru'
-            });
-
-            $scope.refreshLogs()
-        });
+        $scope.refreshLogs()
     })
 </script>
