@@ -44,7 +44,7 @@
                     <button
                         type="button"
                         class="btn btn-danger btn-sm"
-                        ng-click="clearFilters('dateFrom')">
+                        ng-click="clearFilter('dateFrom')">
                         X
                     </button>
                 </div>
@@ -63,7 +63,7 @@
                     <button
                         type="button"
                         class="btn btn-danger btn-sm"
-                        ng-click="clearFilters('dateTo')">
+                        ng-click="clearFilter('dateTo')">
                         X
                     </button>
                 </div>
@@ -82,7 +82,7 @@
                 <button
                     type="button"
                     class="btn btn-danger btn-sm"
-                    ng-click="clearFilters('entityType')">
+                    ng-click="clearFilter('entityType')">
                     X
                 </button>
             </div>
@@ -100,7 +100,7 @@
                 <button
                     type="button"
                     class="btn btn-danger btn-sm"
-                    ng-click="clearFilters('user')">
+                    ng-click="clearFilter('user')">
                     X
                 </button>
             </div>
@@ -217,7 +217,7 @@
                 $scope.possibleEntityTypes = newEntityItems;
         }
 
-        $scope.clearFilters = (name) => {
+        $scope.clearFilter = (name) => {
             $scope[name] = '';
             $scope.refreshLogs();
         }
