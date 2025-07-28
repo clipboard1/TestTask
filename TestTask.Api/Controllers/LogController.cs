@@ -25,12 +25,14 @@ public class LogController: Controller
     public async Task<IActionResult> Get(
         CancellationToken cancellationToken, int page = 1,
         int pageSize = 20, DateTime? dateFrom = null,
-        DateTime? dateTo = null)
+        DateTime? dateTo = null,
+        string? entityType = null)
     {
         var result = await _service.GetLogs(
             cancellationToken,
             page, pageSize,
-            dateFrom, dateTo);
+            dateFrom, dateTo,
+            entityType);
 
         if (!result.logs.Any())
             return NotFound();

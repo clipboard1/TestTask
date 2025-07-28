@@ -1,4 +1,5 @@
-﻿using TestTask.Infrastructure.Models;
+﻿using TestTask.Infrastructure.Entities.LogEntity;
+using TestTask.Infrastructure.Models;
 
 namespace TestTask.Infrastructure.Abstractions;
 
@@ -8,5 +9,6 @@ public interface ILogRepository
         int page = 1,
         int pageSize = 10,
         DateTime? dateFrom = null,
-        DateTime? dateTo = null);
+        DateTime? dateTo = null,
+        LogEntityType? entityType = null);
 }

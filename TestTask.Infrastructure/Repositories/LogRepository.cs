@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using TestTask.Infrastructure.Abstractions;
+using TestTask.Infrastructure.Entities.LogEntity;
 using TestTask.Infrastructure.Models;
 
 namespace TestTask.Infrastructure.Repositories;
@@ -15,7 +16,9 @@ public class LogRepository : ILogRepository
 
     public async Task<(List<Log>, int TotalCount)> GetLogs(CancellationToken cancellationToken, int page = 1,
         int pageSize = 10,
-        DateTime? dateFrom = null, DateTime? dateTo = null)
+        DateTime? dateFrom = null,
+        DateTime? dateTo = null,
+        LogEntityType? entityType = null)
     {
         if (page < 1)
             return ([], 0);
@@ -29,6 +32,9 @@ public class LogRepository : ILogRepository
         
         if (dateTo.HasValue)
             query = query.Where(l => l.Datetime <= dateTo);
+
+        if (entityType.HasValue)
+            query = query.Where(l => l.Entity.Equals(entityType));
 
         var totalCount = await query.CountAsync(cancellationToken);
 

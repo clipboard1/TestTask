@@ -1,5 +1,6 @@
 ﻿using TestTask.Application.Abstractions;
 using TestTask.Infrastructure.Abstractions;
+using TestTask.Infrastructure.Entities.LogEntity;
 using TestTask.Infrastructure.Models;
 using TestTask.Infrastructure.Repositories;
 
@@ -17,13 +18,18 @@ public class LogService : ILogService
     public async Task<(List<Log> logs, int TotalCount)> GetLogs(
         CancellationToken cancellationToken, int page = 1, 
         int pageSize = 10, DateTime? dateFrom = null,
-        DateTime? dateTo = null)
+        DateTime? dateTo = null, string? entityType = null)
     {
+        var entityFilter = Enum.TryParse<LogEntityType>(entityType, true, out var parsedEntity)
+            ? parsedEntity
+            : (LogEntityType?)null;
+
+
         var result = await _repository.GetLogs(
             cancellationToken,
             page, pageSize,
-            dateFrom, dateTo);
-
+            dateFrom, dateTo,
+            entityFilter);
         return result;
     }
 }
