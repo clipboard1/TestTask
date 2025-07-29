@@ -16,7 +16,8 @@ public class LogRepository : ILogRepository
 
     public async Task<(List<Log>, int TotalCount)> GetLogs(CancellationToken cancellationToken, int page = 1,
         int pageSize = 10,
-        DateTime? date = null,
+        DateTime? dateFrom = null,
+        DateTime? dateTo = null,
         LogEntityType? entityType = null,
         string? user = null)
     {
@@ -27,8 +28,11 @@ public class LogRepository : ILogRepository
 
         var query = _context.Logs.AsQueryable();
 
-        if (date.HasValue)
-            query = query.Where(l => l.Datetime <= date);
+        if (dateFrom.HasValue)
+            query = query.Where(l => l.Datetime >= dateFrom);
+
+        if (dateTo.HasValue)
+            query = query.Where(l => l.Datetime <= dateTo);
 
         if (entityType.HasValue)
             query = query.Where(l => l.Entity.Equals(entityType));
