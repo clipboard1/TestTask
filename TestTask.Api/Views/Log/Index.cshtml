@@ -20,6 +20,7 @@
     >
     </div>
 </div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/angular-ui-bootstrap/2.5.0/ui-bootstrap-tpls.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/angular-ui-grid/4.8.1/ui-grid.min.js"></script>
 <script>
     let myApp = angular.module('myApp',
@@ -28,6 +29,7 @@
             'ui.grid.infiniteScroll',
             'ui.grid.resizeColumns',
             'ui.grid.moveColumns',
+            'ui.bootstrap'
         ]);
 
     myApp.controller('LogsController', function ($http, $scope, uiGridConstants) {
@@ -64,6 +66,33 @@
                     displayName: 'DateTime',
                     type: 'date',
                     cellFilter: 'date:"yyyy-MM-dd"',
+                    filters: [
+                        {},
+                        {}
+                    ],
+                    filterHeaderTemplate: `
+                      <div class="ui-grid-filter-container">
+                        <div>From:
+                          <input type="text"
+                                 class="form-control input-sm"
+                                 uib-datepicker-popup="yyyy-MM-dd"
+                                 ng-model="col.filters[0].term"
+                                 is-open="col.filters[0].isOpen"
+                                 ng-focus="col.filters[0].isOpen = true"
+                                 datepicker-append-to-body="true"
+                                 datepicker-options="{ startingDay: 1 }"/>
+                        </div>
+                        <div>To:
+                          <input type="text"
+                                 class="form-control input-sm"
+                                 uib-datepicker-popup="yyyy-MM-dd"
+                                 ng-model="col.filters[1].term"
+                                 is-open="col.filters[1].isOpen"
+                                 ng-focus="col.filters[1].isOpen = true"
+                                 datepicker-append-to-body="true"
+                                 datepicker-options="{ startingDay: 1 }"/>
+                        </div>
+                      </div>`,
                 },
                 {
                     field: 'recordType',
@@ -123,23 +152,25 @@
 
                     const userFilter = grid.columns.find(c => c.field === 'user')?.filters[0]?.term;
                     const entityFilter = grid.columns.find(c => c.field === 'entity')?.filters[0]?.term;
-                    const dateFilter = grid.columns.find(c => c.field === 'dateTime')?.filters[0]?.term;
+                    const dateFromFilter = grid.columns.find(c => c.field === 'dateTime')?.filters[0]?.term;
+                    const dateToFilter = grid.columns.find(c => c.field === 'dateTime')?.filters[1]?.term;
 
                     $scope.user = userFilter || '';
                     $scope.entityType = entityFilter || '';
-                    $scope.date = dateFilter || '';
+                    $scope.dateFrom = dateFromFilter ? new Date(dateFromFilter).toISOString().split('T')[0] : '';
+                    $scope.dateTo = dateToFilter ? new Date(dateToFilter).toISOString().split('T')[0] : '';
 
                     $scope.refreshLogs();
                 });
             }
         };
 
-        $scope.getLogs = (page, pageSize, date, entityType, user) => {
+        $scope.getLogs = (page, pageSize, dateFrom, dateTo, entityType, user) => {
             return $http.get('Log/Get', {
                 params: {
                     page, pageSize,
-                    date, entityType,
-                    user
+                    dateFrom, dateTo,
+                    entityType, user
                 }
             })
                 .then(response => response.data.logs);
@@ -153,8 +184,8 @@
 
             $scope.getLogs(
                 pageToFetch, $scope.pageSize,
-                $scope.date, $scope.entityType,
-                $scope.user
+                $scope.dateFrom, $scope.dateTo,
+                $scope.entityType, $scope.user
             )
                 .then(logs => {
                     if (append) {
