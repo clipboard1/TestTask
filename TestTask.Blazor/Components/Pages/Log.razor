@@ -1,0 +1,87 @@
+@page "/Table"
+@using TestTask.Application.Abstractions
+<h3>Log</h3>
+
+<MudTable
+    ServerData="LoadMoreData"
+    Dense="true"
+    Hover="true"
+    @ref="Table"
+    CurrentPage="1"
+    RowsPerPage="20"
+    >
+    <HeaderContent>
+        <MudTh>Id</MudTh>
+        <MudTh>User</MudTh>
+        <MudTh>DateTime</MudTh>
+        <MudTh>RecordType</MudTh>
+        <MudTh>Comment</MudTh>
+        <MudTh>LogGuid</MudTh>
+        <MudTh>LogGuidLinked</MudTh>
+        <MudTh>Entity</MudTh>
+        <MudTh>EventInfo</MudTh>
+        <MudTh>FieldName</MudTh>
+        <MudTh>OldValue</MudTh>
+        <MudTh>NewValue</MudTh>
+    </HeaderContent>
+    <RowTemplate>
+        <MudTd DataLabel="Id">@context.Id</MudTd>
+        <MudTd DataLabel="User">@context.User</MudTd>
+        <MudTd DataLabel="Datetime">@context.Datetime</MudTd>
+        <MudTd DataLabel="Recordtype">@context.Recordtype</MudTd>
+        <MudTd DataLabel="Comment">@context.Comment</MudTd>
+        <MudTd DataLabel="Logguid">@context.Logguid</MudTd>
+        <MudTd DataLabel="Logguidlinked">@context.Logguidlinked</MudTd>
+        <MudTd DataLabel="Entity">@context.Entity</MudTd>
+        <MudTd DataLabel="Eventinfo">@context.Eventinfo</MudTd>
+        <MudTd DataLabel="Fieldname">@context.Fieldname</MudTd>
+        <MudTd DataLabel="Oldvalue">@context.Oldvalue</MudTd>
+        <MudTd DataLabel="Newvalue">@context.Newvalue</MudTd>
+    </RowTemplate>
+    <NoRecordsContent>
+        <MudText>No matching records found</MudText>
+    </NoRecordsContent>
+    <LoadingContent>
+        <MudText>Loading...</MudText>
+    </LoadingContent>
+    <PagerContent>
+        <MudTablePager />
+    </PagerContent>
+</MudTable>
+
+@code {
+    private MudTable<Infrastructure.Models.Log> Table;
+
+    private IEnumerable<Infrastructure.Models.Log> PagedData { get; set; } = [];
+    private int TotalItems { get; set; }
+    private DateTime? DateFrom { get; set; } = null;
+    private DateTime? DateTo = null;
+    private string? EntityType { get; set; } = null;
+    private string? User { get; set; } = null;
+
+    [Inject]
+    private ILogService LogService { get; set; } = null!;
+
+    private async Task<TableData<Infrastructure.Models.Log>> LoadMoreData(TableState state, CancellationToken cancellationToken)
+    {
+        var result = await LogService.GetLogs(
+            cancellationToken,
+            state.Page,
+            state.PageSize,
+            DateFrom,
+            DateTo,
+            EntityType,
+            User
+        );
+
+        PagedData = result.logs;
+        TotalItems = result.TotalCount;
+
+        return new TableData<Infrastructure.Models.Log>()
+        {
+            TotalItems = TotalItems,
+            Items = PagedData
+        };
+    }
+
+}
